@@ -79,7 +79,7 @@ export default function CameraPage() {
 
     setLoading(false);
 
-    // navigate("/result", { state: { requestId } });
+    navigate("/form", { state: { requestId, modelId } });
   };
 
   return (
