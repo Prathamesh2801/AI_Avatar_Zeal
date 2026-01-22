@@ -9,7 +9,10 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router-dom";
-import Bg from "../assets/img/background.jpg";
+import Bg from "../assets/img/ui/background.png";
+import VedantaLogo from "../assets/img/ui/vedanta_logo.png";
+import CarinLogo from "../assets/img/ui/carin_logo.png";
+import { faceSwap } from "../api/faceswap";
 
 export default function CameraPage() {
   const fileInputRef = useRef(null);
@@ -55,31 +58,33 @@ export default function CameraPage() {
       .toString(36)
       .slice(2, 9)}`;
 
-    const formData = new FormData();
-    formData.append("modelId", modelId);
-    formData.append("image", imageFile);
-    formData.append("requestId", requestId);
-
-    // 🔥 API call placeholder
-    /*
-    await fetch("/api/generate", {
-      method: "POST",
-      body: formData,
-    });
-    */
-
     console.log("Ready to send:", {
       modelId,
       imageFile,
       requestId,
     });
 
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
+    const response = await faceSwap({
+      source_image: imageFile,
+      model_id: modelId,
+      unique_id: requestId,
+    });
+    console.log("Response Recieved : ", response);
     setLoading(false);
 
-    navigate("/form", { state: { requestId, modelId } });
+    // Optional: basic safety check
+    if (response.status !== 200) {
+      console.error("FaceSwap failed:", response);
+      return;
+    }
+
+    // Backend says: process_started
+    navigate("/form", {
+      state: {
+        requestId,
+        modelId,
+      },
+    });
   };
 
   return (
@@ -88,20 +93,39 @@ export default function CameraPage() {
       style={{ backgroundImage: `url(${Bg})` }}
     >
       {/* Enhanced Overlay with gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/60 to-black/70 backdrop-blur-[2px]" />
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
 
       {/* Grid pattern overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:64px_64px]" />
 
-      <div className="relative z-10 max-w-7xl mx-auto">
+      {/* Logos */}
+      <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center px-4 sm:px-8 py-4 sm:py-6">
+        <motion.img
+          src={VedantaLogo}
+          alt="Vedanta Logo"
+          className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+        />
+        <motion.img
+          src={CarinLogo}
+          alt="Carin Logo"
+          className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+        />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto mt-20 sm:mt-24 lg:mt-28">
         {/* Enhanced Header */}
-        <div className="mb-12 sm:mb-16">
+        <div className="mb-12 sm:mb-16 space-y-8 sm:space-y-10 lg:space-y-12">
           {/* Back button - Left aligned */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
-            className="mb-8"
           >
             <button
               onClick={() => navigate(-1)}

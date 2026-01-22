@@ -4,9 +4,11 @@ import { Sparkles, ArrowRight } from "lucide-react";
 import { Player } from "@lottiefiles/react-lottie-player";
 import MaleIcon from "../assets/img/male.json";
 import FemaleIcon from "../assets/img/woman.json";
-import Bg from "../assets/img/background.jpg";
+import Bg from "../assets/img/ui/background.png";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import VedantaLogo from "../assets/img/ui/vedanta_logo.png";
+import CarinLogo from "../assets/img/ui/carin_logo.png";
 
 export default function StartupPage() {
   const [hoveredOption, setHoveredOption] = useState(null);
@@ -71,7 +73,7 @@ export default function StartupPage() {
       className="min-h-screen relative overflow-hidden flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-cover bg-center"
       style={{ backgroundImage: `url(${Bg})` }}
     >
-      {/* <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px]" /> */}
+      <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
 
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
@@ -103,6 +105,26 @@ export default function StartupPage() {
 
       {/* Grid pattern overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
+
+      {/* Logos */}
+      <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
+        <motion.img
+          src={VedantaLogo}
+          alt="Vedanta Logo"
+          className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+        />
+        <motion.img
+          src={CarinLogo}
+          alt="Carin Logo"
+          className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+        />
+      </div>
 
       <motion.div
         className="relative z-10 w-full max-w-7xl"

@@ -1,9 +1,11 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { models } from "../assets/data/models";
-import Bg from "../assets/img/background.jpg";
+import Bg from "../assets/img/ui/background.png";
 import { ArrowLeft, Sparkles, CheckCircle2, User, UserCircle } from "lucide-react";
 import { useState } from "react";
+import VedantaLogo from "../assets/img/ui/vedanta_logo.png";
+import CarinLogo from "../assets/img/ui/carin_logo.png";
 
 export default function ModelSelectionPage() {
   const location = useLocation();
@@ -53,20 +55,39 @@ export default function ModelSelectionPage() {
       className="min-h-screen relative bg-cover bg-center px-4 sm:px-8 py-8 sm:py-12"
       style={{ backgroundImage: `url(${Bg})` }}
     >
-    
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]" />
       
       {/* Grid pattern overlay */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:64px_64px]" />
 
-      <div className="relative z-10 max-w-7xl mx-auto">
+      {/* Logos */}
+      <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center px-4 sm:px-8 py-4 sm:py-6">
+        <motion.img
+          src={VedantaLogo}
+          alt="Vedanta Logo"
+          className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+        />
+        <motion.img
+          src={CarinLogo}
+          alt="Carin Logo"
+          className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.2, duration: 0.6 }}
+        />
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto mt-20 sm:mt-24 lg:mt-28">
         {/* Enhanced Header */}
-        <div className="mb-12 sm:mb-16">
+        <div className="mb-12 sm:mb-16 space-y-8 sm:space-y-10 lg:space-y-12">
           {/* Back button - Left aligned */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.4 }}
-            className="mb-8"
           >
             <button
               onClick={() => navigate("/")}
@@ -145,7 +166,7 @@ export default function ModelSelectionPage() {
               }`}
             >
               {/* Image container */}
-              <div className="relative aspect-[3/4] overflow-hidden bg-black/40">
+              <div className="relative  overflow-hidden bg-black/40">
                 <img
                   src={model.image}
                   alt={model.name}
