@@ -1,416 +1,143 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Sparkles, ArrowRight } from "lucide-react";
-import { Player } from "@lottiefiles/react-lottie-player";
+import { useNavigate } from "react-router-dom";
 import MaleIcon from "../assets/img/male.json";
 import FemaleIcon from "../assets/img/woman.json";
-import Bg from "../assets/img/ui/background.png";
-import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-import VedantaLogo from "../assets/img/ui/vedanta_logo.png";
-import CarinLogo from "../assets/img/ui/carin_logo.png";
+import PageShell from "../components/PageShell";
+import GenderIcon from "../components/GenderIcon";
+
+const OPTIONS = [
+  {
+    gender: "male",
+    label: "Male",
+    icon: MaleIcon,
+    card: "from-red-950/50 to-orange-950/30 border-red-500/25",
+    ring: "ring-red-400 shadow-red-500/40",
+    halo: "from-red-500/20 to-orange-500/20",
+    accent: "text-red-300",
+  },
+  {
+    gender: "female",
+    label: "Female",
+    icon: FemaleIcon,
+    card: "from-slate-900/60 to-red-950/30 border-white/20",
+    ring: "ring-white/70 shadow-white/30",
+    halo: "from-white/15 to-red-500/20",
+    accent: "text-red-200",
+  },
+];
 
 export default function StartupPage() {
-  const [hoveredOption, setHoveredOption] = useState(null);
   const [activeGender, setActiveGender] = useState(null);
   const navigate = useNavigate();
 
   const handleSelection = (gender) => {
-    if (activeGender) return; // prevent double click
-
+    if (activeGender) return; // ignore double taps
     setActiveGender(gender);
-
-    toast.success(`${gender === "male" ? "Male" : "Female"} profile selected`, {
-      duration: 1000,
-    });
-
-    setTimeout(() => {
-      navigate("/model", {
-        state: { gender },
-      });
-    }, 900);
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 50, opacity: 0 },
-    visible: {
-      y: 0,
-      opacity: 1,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 12,
-      },
-    },
-  };
-
-  const cardVariants = {
-    initial: { scale: 1 },
-    hover: {
-      scale: 1.05,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 20,
-      },
-    },
-    tap: { scale: 0.98 },
+    setTimeout(() => navigate("/model", { state: { gender } }), 450);
   };
 
   return (
-    <div
-      className="min-h-screen relative overflow-hidden flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-cover bg-center"
-      style={{ backgroundImage: `url(${Bg})` }}
+    <PageShell
+      grid="72px"
+      className="flex flex-col px-4 pt-24 pb-5 sm:px-6 sm:py-28 sm:justify-center"
     >
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" />
-
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-blue-600/10 via-transparent to-transparent rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, 90, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-        />
-        <motion.div
-          className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-pink-600/10 via-transparent to-transparent rounded-full blur-3xl"
-          animate={{
-            scale: [1.2, 1, 1.2],
-            rotate: [0, -90, 0],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "linear",
-          }}
-        />
-      </div>
-
-      {/* Grid pattern overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:72px_72px]" />
-
-      {/* Logos */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
-        <motion.img
-          src={VedantaLogo}
-          alt="Vedanta Logo"
-          className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-        />
-        <motion.img
-          src={CarinLogo}
-          alt="Carin Logo"
-          className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-        />
-      </div>
-
+      {/* `flex-1` + `min-h-0` lets the card grid absorb the leftover height on
+          a phone instead of leaving dead space above and below it. */}
       <motion.div
-        className="relative z-10 w-full max-w-7xl"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
+        className="relative z-10 w-full max-w-5xl mx-auto flex-1 min-h-0 flex flex-col sm:block sm:flex-none"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
       >
-        {/* Header Section */}
+        {/* Header */}
         <motion.div
-          variants={itemVariants}
-          className="text-center mb-12 sm:mb-20"
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-5 sm:mb-12 shrink-0"
         >
-          <motion.div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-6"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-          >
-            <Sparkles className="w-4 h-4 text-yellow-400" />
-            <span className="text-sm text-gray-300 font-medium">
-              AI-Powered Avatar Selection
+          {/* The badge is decoration; on a short phone the cards need that
+              room more than it does. */}
+          <div className="hidden min-[380px]:inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 backdrop-blur-sm mb-3 sm:mb-4">
+            <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
+            <span className="text-xs sm:text-sm text-gray-300 font-medium">
+              AI-Powered Avatar
             </span>
-          </motion.div>
+          </div>
 
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-200 to-white mb-6 tracking-tight">
+          <h1 className="text-2xl min-[380px]:text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-2 sm:mb-3 tracking-tight text-balance">
             Choose Your Identity
           </h1>
-          <p className="text-gray-400 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
-            Select your avatar profile to begin your personalized AI experience
+          <p className="text-gray-400 text-sm sm:text-lg max-w-xl mx-auto text-balance">
+            Select a profile to begin
           </p>
         </motion.div>
 
-        {/* Selection Cards */}
-        <motion.div
-          variants={itemVariants}
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-12 max-w-6xl mx-auto"
-        >
-          {/* Male Option */}
-          <motion.button
-            onClick={() => handleSelection("male")}
-            onHoverStart={() => setHoveredOption("male")}
-            onHoverEnd={() => setHoveredOption(null)}
-            variants={cardVariants}
-            initial="initial"
-            whileHover="hover"
-            whileTap="tap"
-            className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-950/50 to-cyan-950/30 border border-blue-500/20 transition-all duration-500 p-8 sm:p-10 lg:p-14 backdrop-blur-xl
-  ${
-    activeGender === "male"
-      ? "ring-4 ring-blue-400 shadow-2xl shadow-blue-500/40 scale-105"
-      : activeGender
-        ? "opacity-40 pointer-events-none"
-        : "hover:scale-105 hover:border-blue-400/50"
-  }
-`}
-          >
-            {/* Animated gradient overlay */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-cyan-500/0 group-hover:from-blue-500/20 group-hover:to-cyan-500/10"
-              initial={false}
-              animate={{
-                opacity: hoveredOption === "male" ? 1 : 0,
-              }}
-              transition={{ duration: 0.5 }}
-            />
+        {/* Stacked on phones, side by side from `sm`: full-width cards use the
+            vertical space a phone has instead of leaving wide empty margins
+            beside two narrow ones. The row cap keeps them a sensible band
+            rather than stretching into huge empty panels on a tall phone. */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-10 flex-1 min-h-0 sm:flex-none content-center auto-rows-[minmax(0,11rem)] sm:auto-rows-auto">
+          {OPTIONS.map((opt, i) => {
+            const isActive = activeGender === opt.gender;
+            const dimmed = activeGender && !isActive;
 
-            {/* Glow effect */}
-            <motion.div
-              className="absolute -inset-1 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-3xl opacity-0 group-hover:opacity-20 blur-xl"
-              initial={false}
-              animate={{
-                opacity: hoveredOption === "male" ? 0.3 : 0,
-              }}
-              transition={{ duration: 0.5 }}
-            />
-
-            <div className="relative z-10 flex flex-col items-center">
-              {/* Icon Container with particles */}
-              <motion.div
-                className="relative w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 mb-8"
-                animate={{
-                  y: hoveredOption === "male" ? [-5, 5, -5] : 0,
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: hoveredOption === "male" ? Infinity : 0,
-                  ease: "easeInOut",
-                }}
+            return (
+              <motion.button
+                key={opt.gender}
+                type="button"
+                onClick={() => handleSelection(opt.gender)}
+                initial={{ y: 30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.15 + i * 0.1, duration: 0.5 }}
+                whileTap={{ scale: 0.97 }}
+                className={`group relative overflow-hidden rounded-2xl sm:rounded-3xl
+                  bg-gradient-to-br ${opt.card} border backdrop-blur-xl
+                  p-4 sm:p-8 lg:p-12 transition-all duration-300
+                  ${isActive ? `ring-4 ${opt.ring} shadow-2xl` : ""}
+                  ${dimmed ? "opacity-40 pointer-events-none" : ""}`}
               >
-                {/* Outer ring */}
-                <motion.div
-                  className="absolute inset-0 rounded-full border-2 border-blue-500/30"
-                  animate={{
-                    scale: hoveredOption === "male" ? [1, 1.1, 1] : 1,
-                    rotate: hoveredOption === "male" ? 360 : 0,
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: hoveredOption === "male" ? Infinity : 0,
-                    ease: "linear",
-                  }}
-                />
+                {/* Row on phones (icon beside the label, using the full card
+                    width), column once the cards sit side by side. */}
+                <div className="relative z-10 h-full flex flex-row sm:flex-col items-center justify-center gap-5 sm:gap-0 text-left sm:text-center">
+                  <div
+                    // Scales with the card height on phones (where the card
+                    // stretches), fixed size once the cards sit side by side.
+                    className={`shrink-0 aspect-square h-[62%] max-h-28
+                      sm:h-36 sm:max-h-36 lg:h-44 lg:max-h-44 sm:mb-6
+                      rounded-full bg-gradient-to-br ${opt.halo}
+                      flex items-center justify-center overflow-hidden backdrop-blur-sm`}
+                  >
+                    <GenderIcon src={opt.icon} />
+                  </div>
 
-                {/* Middle ring */}
-                <motion.div
-                  className="absolute inset-4 rounded-full border border-cyan-500/20"
-                  animate={{
-                    scale: hoveredOption === "male" ? [1, 1.15, 1] : 1,
-                    rotate: hoveredOption === "male" ? -360 : 0,
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: hoveredOption === "male" ? Infinity : 0,
-                    ease: "linear",
-                  }}
-                />
+                  <div className="flex-1 sm:flex-none">
+                    <h2
+                      className={`text-2xl sm:text-3xl lg:text-4xl font-bold text-white transition-colors ${
+                        isActive ? opt.accent : ""
+                      }`}
+                    >
+                      {opt.label}
+                    </h2>
 
-                {/* Icon background */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center backdrop-blur-sm">
-                    <Player
-                      autoplay
-                      loop
-                      src={MaleIcon}
-                      className="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32"
-                    />
+                    <span
+                      className={`mt-1 sm:mt-4 inline-flex items-center gap-1.5 text-xs sm:text-sm font-medium ${opt.accent} transition-opacity duration-300 ${
+                        isActive
+                          ? "opacity-100"
+                          : "opacity-70 sm:opacity-0 sm:group-hover:opacity-100"
+                      }`}
+                    >
+                      {isActive ? "Selected" : "Select"}
+                      <ArrowRight className="w-4 h-4" />
+                    </span>
                   </div>
                 </div>
-              </motion.div>
-
-              {/* Label */}
-              <div className="text-center space-y-3">
-                <h2 className="text-4xl sm:text-5xl font-bold text-white group-hover:text-blue-300 transition-colors duration-300">
-                  Male
-                </h2>
-                <p className="text-gray-400 text-base sm:text-lg group-hover:text-gray-300 transition-colors duration-300">
-                  Professional AI Avatar
-                </p>
-              </div>
-
-              {/* Arrow indicator with animation */}
-              <motion.div
-                className="mt-8 flex items-center gap-2 text-blue-400"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{
-                  opacity: hoveredOption === "male" ? 1 : 0,
-                  x: hoveredOption === "male" ? 0 : -10,
-                }}
-                transition={{ duration: 0.3 }}
-              >
-                <span className="text-sm font-medium">Select Profile</span>
-                <ArrowRight className="w-5 h-5" />
-              </motion.div>
-            </div>
-          </motion.button>
-
-          {/* Female Option */}
-          <motion.button
-            onClick={() => handleSelection("female")}
-            onHoverStart={() => setHoveredOption("female")}
-            onHoverEnd={() => setHoveredOption(null)}
-            variants={cardVariants}
-            initial="initial"
-            whileHover="hover"
-            whileTap="tap"
-            className={`group relative overflow-hidden rounded-3xl bg-gradient-to-br from-pink-950/50 to-purple-950/30 border border-pink-500/20 transition-all duration-500 p-8 sm:p-10 lg:p-14 backdrop-blur-xl
-  ${
-    activeGender === "female"
-      ? "ring-4 ring-pink-400 shadow-2xl shadow-pink-500/40 scale-105"
-      : activeGender
-        ? "opacity-40 pointer-events-none"
-        : "hover:scale-105 hover:border-pink-400/50"
-  }
-`}
-          >
-            {/* Animated gradient overlay */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-br from-pink-500/0 to-purple-500/0 group-hover:from-pink-500/20 group-hover:to-purple-500/10"
-              initial={false}
-              animate={{
-                opacity: hoveredOption === "female" ? 1 : 0,
-              }}
-              transition={{ duration: 0.5 }}
-            />
-
-            {/* Glow effect */}
-            <motion.div
-              className="absolute -inset-1 bg-gradient-to-r from-pink-500 to-purple-500 rounded-3xl opacity-0 group-hover:opacity-20 blur-xl"
-              initial={false}
-              animate={{
-                opacity: hoveredOption === "female" ? 0.3 : 0,
-              }}
-              transition={{ duration: 0.5 }}
-            />
-
-            <div className="relative z-10 flex flex-col items-center">
-              {/* Icon Container with particles */}
-              <motion.div
-                className="relative w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 mb-8"
-                animate={{
-                  y: hoveredOption === "female" ? [-5, 5, -5] : 0,
-                }}
-                transition={{
-                  duration: 2,
-                  repeat: hoveredOption === "female" ? Infinity : 0,
-                  ease: "easeInOut",
-                }}
-              >
-                {/* Outer ring */}
-                <motion.div
-                  className="absolute inset-0 rounded-full border-2 border-pink-500/30"
-                  animate={{
-                    scale: hoveredOption === "female" ? [1, 1.1, 1] : 1,
-                    rotate: hoveredOption === "female" ? 360 : 0,
-                  }}
-                  transition={{
-                    duration: 3,
-                    repeat: hoveredOption === "female" ? Infinity : 0,
-                    ease: "linear",
-                  }}
-                />
-
-                {/* Middle ring */}
-                <motion.div
-                  className="absolute inset-4 rounded-full border border-purple-500/20"
-                  animate={{
-                    scale: hoveredOption === "female" ? [1, 1.15, 1] : 1,
-                    rotate: hoveredOption === "female" ? -360 : 0,
-                  }}
-                  transition={{
-                    duration: 4,
-                    repeat: hoveredOption === "female" ? Infinity : 0,
-                    ease: "linear",
-                  }}
-                />
-
-                {/* Icon background */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 flex items-center justify-center backdrop-blur-sm">
-                    <Player
-                      autoplay
-                      loop
-                      src={FemaleIcon}
-                      className="w-24 h-24 sm:w-28 sm:h-28 lg:w-32 lg:h-32"
-                    />
-                  </div>
-                </div>
-              </motion.div>
-
-              {/* Label */}
-              <div className="text-center space-y-3">
-                <h2 className="text-4xl sm:text-5xl font-bold text-white group-hover:text-pink-300 transition-colors duration-300">
-                  Female
-                </h2>
-                <p className="text-gray-400 text-base sm:text-lg group-hover:text-gray-300 transition-colors duration-300">
-                  Professional AI Avatar
-                </p>
-              </div>
-
-              {/* Arrow indicator with animation */}
-              <motion.div
-                className="mt-8 flex items-center gap-2 text-pink-400"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{
-                  opacity: hoveredOption === "female" ? 1 : 0,
-                  x: hoveredOption === "female" ? 0 : -10,
-                }}
-                transition={{ duration: 0.3 }}
-              >
-                <span className="text-sm font-medium">Select Profile</span>
-                <ArrowRight className="w-5 h-5" />
-              </motion.div>
-            </div>
-          </motion.button>
-        </motion.div>
-
-        {/* Footer */}
-        <motion.div
-          variants={itemVariants}
-          className="text-center mt-16 sm:mt-20"
-        >
-          <p className="text-gray-500 text-sm sm:text-base">
-            Your selection will personalize your AI experience
-          </p>
-        </motion.div>
+              </motion.button>
+            );
+          })}
+        </div>
       </motion.div>
-    </div>
+    </PageShell>
   );
 }

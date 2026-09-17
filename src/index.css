@@ -1,1 +1,55 @@
 @import "tailwindcss";
+
+/* Shared page background. Declared once so the browser decodes the image a
+   single time instead of re-decoding it for every page's inline style. */
+.app-bg {
+  background-image: url("./assets/img/ui/background.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+.app-grid {
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+}
+
+html {
+  background-color: #0a0a0f;
+  /* Stop iOS inflating text in landscape. */
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  /* No rubber-band scroll past the page on touch devices. */
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* `touch-action: manipulation` removes the ~300ms click delay and the
+   double-tap-to-zoom gesture on buttons, while leaving pinch-zoom intact. */
+button,
+[role="button"],
+a {
+  touch-action: manipulation;
+}
+
+input,
+textarea {
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

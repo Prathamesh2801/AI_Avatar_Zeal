@@ -2,6 +2,7 @@ import js from '@eslint/js'
 import globals from 'globals'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
+import react from 'eslint-plugin-react'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
@@ -23,7 +24,12 @@ export default defineConfig([
       },
     },
     rules: {
+      // jsx-uses-vars teaches no-unused-vars that `<motion.div>` counts as a
+      // use of the `motion` import; without it every JSX-only import is a
+      // false positive.
+      'react/jsx-uses-vars': 'error',
       'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
     },
+    plugins: { react },
   },
 ])

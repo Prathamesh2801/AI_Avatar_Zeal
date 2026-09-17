@@ -1,11 +1,9 @@
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
-import { models } from "../assets/data/models";
-import Bg from "../assets/img/ui/background.png";
-import { ArrowLeft, Sparkles, CheckCircle2, User, UserCircle } from "lucide-react";
-import { useState } from "react";
-import VedantaLogo from "../assets/img/ui/vedanta_logo.png";
-import CarinLogo from "../assets/img/ui/carin_logo.png";
+import { motion } from "framer-motion";
+import { ArrowLeft, CheckCircle2, Sparkles } from "lucide-react";
+import { getModelsByGender } from "../assets/data/models";
+import PageShell from "../components/PageShell";
 
 export default function ModelSelectionPage() {
   const location = useLocation();
@@ -14,280 +12,120 @@ export default function ModelSelectionPage() {
 
   const gender = location.state?.gender;
 
-  const filteredModels = models.filter((model) => model.category === gender);
+  // Direct link / reload with no gender in history state: start over.
+  useEffect(() => {
+    if (!gender) navigate("/", { replace: true });
+  }, [gender, navigate]);
 
-  const handleModelSelect = (model) => {
+  if (!gender) return null;
+
+  const templates = getModelsByGender(gender);
+
+  const handleSelect = (model) => {
+    if (selectedModel) return;
     setSelectedModel(model.id);
-    
-    // Navigate after a short delay for visual feedback
-    setTimeout(() => {
-      navigate("/camera", { state: { modelId: model.id, gender } });
-    }, 600);
-  };
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.08,
-        delayChildren: 0.2
-      }
-    }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 40, scale: 0.95 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 100,
-        damping: 15
-      }
-    }
+    setTimeout(
+      () => navigate("/camera", { state: { modelId: model.id, gender } }),
+      450
+    );
   };
 
   return (
-    <div
-      className="min-h-screen relative bg-cover bg-center px-4 sm:px-8 py-8 sm:py-12"
-      style={{ backgroundImage: `url(${Bg})` }}
-    >
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-[2px]" />
-      
-      {/* Grid pattern overlay */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:64px_64px]" />
-
-      {/* Logos */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center px-4 sm:px-8 py-4 sm:py-6">
-        <motion.img
-          src={VedantaLogo}
-          alt="Vedanta Logo"
-          className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-        />
-        <motion.img
-          src={CarinLogo}
-          alt="Carin Logo"
-          className="h-12 sm:h-14 lg:h-16 w-auto object-contain"
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
-        />
-      </div>
-
-      <div className="relative z-10 max-w-7xl mx-auto mt-20 sm:mt-24 lg:mt-28">
-        {/* Enhanced Header */}
-        <div className="mb-12 sm:mb-16 space-y-8 sm:space-y-10 lg:space-y-12">
-          {/* Back button - Left aligned */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            <button
-              onClick={() => navigate("/")}
-              className="group flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 hover:bg-white/10 transition-all duration-300 backdrop-blur-sm"
-            >
-              <ArrowLeft className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors group-hover:-translate-x-1 transform duration-300" />
-              <span className="text-sm font-medium text-gray-300 group-hover:text-white transition-colors">
-                Back to Selection
-              </span>
-            </button>
-          </motion.div>
-
-          {/* Centered title block with icon */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-center space-y-6"
-          >
-            {/* Gender badge with icon */}
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-white/10 to-white/5 border border-white/20 backdrop-blur-md"
-            >
-              {gender === "male" ? (
-                <UserCircle className="w-5 h-5 text-blue-400" />
-              ) : (
-                <User className="w-5 h-5 text-pink-400" />
-              )}
-              <span className="text-sm font-semibold text-white capitalize">
-                {gender} Models
-              </span>
-              <Sparkles className="w-4 h-4 text-yellow-400" />
-            </motion.div>
-
-            {/* Main title */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-gray-100 to-white leading-tight tracking-tight">
-              Choose Your Model
-            </h1>
-            
-            {/* Subtitle */}
-            <p className="text-gray-400 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
-              Select your preferred AI avatar to begin your personalized experience
-            </p>
-
-            {/* Decorative line */}
-            <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ delay: 0.6, duration: 0.8 }}
-              className="h-px w-32 mx-auto bg-gradient-to-r from-transparent via-white/40 to-transparent"
-            />
-          </motion.div>
-        </div>
-
-        {/* Models Grid */}
+    <PageShell className="px-4 sm:px-6 pt-20 sm:pt-28 pb-10">
+      <div className="relative z-10 max-w-5xl mx-auto">
+        {/* Header */}
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="mb-4 sm:mb-8"
         >
-          {filteredModels.map((model) => (
-            <motion.div
-              key={model.id}
-              variants={itemVariants}
-              whileHover={{ y: -8 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => handleModelSelect(model)}
-              className={`group relative rounded-2xl overflow-hidden cursor-pointer transition-all duration-500 ${
-                selectedModel === model.id
-                  ? "ring-4 ring-offset-2 ring-offset-black/50 ring-white/60 shadow-2xl shadow-white/20"
-                  : "hover:shadow-2xl hover:shadow-white/10"
-              }`}
-            >
-              {/* Image container */}
-              <div className="relative  overflow-hidden bg-black/40">
-                <img
-                  src={model.image}
-                  alt={model.name}
-                  className={`w-full h-full object-cover transition-all duration-700 ${
-                    selectedModel === model.id
-                      ? "scale-110 brightness-110"
-                      : "group-hover:scale-110 group-hover:brightness-110"
-                  }`}
-                />
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="inline-flex items-center gap-2 px-3 py-2 -ml-1 rounded-xl bg-white/5 border border-white/10 active:bg-white/15 transition"
+          >
+            <ArrowLeft className="w-4 h-4 text-gray-300" />
+            <span className="text-sm font-medium text-gray-300">Back</span>
+          </button>
 
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-80 group-hover:opacity-70 transition-opacity duration-500" />
+          <div className="text-center mt-4 space-y-2">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md">
+              <span className="text-xs sm:text-sm font-semibold text-white capitalize">
+                {gender} templates
+              </span>
+              <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
+            </div>
 
-                {/* Selection indicator */}
-                <AnimatePresence>
-                  {selectedModel === model.id && (
-                    <motion.div
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                      className="absolute top-4 right-4 bg-white rounded-full p-1.5 shadow-xl"
-                    >
-                      <CheckCircle2 className="w-6 h-6 text-green-600" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-                {/* Hover glow effect */}
-                <motion.div
-                  className={`absolute inset-0 bg-gradient-to-t ${
-                    gender === "male"
-                      ? "from-blue-500/20 to-transparent"
-                      : "from-pink-500/20 to-transparent"
-                  } opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
-                />
-
-                {/* Active selection glow */}
-                {selectedModel === model.id && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className={`absolute inset-0 bg-gradient-to-t ${
-                      gender === "male"
-                        ? "from-blue-400/30 to-transparent"
-                        : "from-pink-400/30 to-transparent"
-                    }`}
-                  />
-                )}
-              </div>
-
-              {/* Card content */}
-              <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
-                <motion.div
-                  className="space-y-2"
-                  animate={{
-                    y: selectedModel === model.id ? -4 : 0
-                  }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {/* <h3 className="text-white font-bold text-xl sm:text-2xl tracking-tight">
-                    {model.name}
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    {gender === "male" ? (
-                      <div className="w-2 h-2 rounded-full bg-blue-400" />
-                    ) : (
-                      <div className="w-2 h-2 rounded-full bg-pink-400" />
-                    )}
-                    <p className="text-gray-300 text-sm capitalize font-medium">
-                      {model.category} Model
-                    </p>
-                  </div> */}
-                </motion.div>
-
-                {/* Select indicator */}
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  whileHover={{ opacity: 1, y: 0 }}
-                  className={`mt-4 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white/10 border border-white/20 backdrop-blur-sm ${
-                    selectedModel === model.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                  } transition-opacity duration-300`}
-                >
-                  <span className="text-white text-sm font-medium">
-                    {selectedModel === model.id ? "Selected" : "Select Model"}
-                  </span>
-                  {selectedModel !== model.id && (
-                    <ArrowLeft className="w-4 h-4 text-white rotate-180" />
-                  )}
-                </motion.div>
-              </div>
-
-              {/* Border glow effect */}
-              <motion.div
-                className={`absolute inset-0 rounded-2xl border-2 ${
-                  selectedModel === model.id
-                    ? gender === "male"
-                      ? "border-blue-400/50"
-                      : "border-pink-400/50"
-                    : "border-transparent group-hover:border-white/20"
-                } transition-colors duration-500 pointer-events-none`}
-              />
-            </motion.div>
-          ))}
+            <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight text-balance">
+              Choose Your Look
+            </h1>
+            <p className="text-gray-400 text-sm sm:text-base">
+              Tap a template to continue
+            </p>
+          </div>
         </motion.div>
 
-        {/* Bottom hint */}
-        {selectedModel && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="text-center mt-12"
-          >
-            <p className="text-gray-400 text-sm flex items-center justify-center gap-2">
-              <Sparkles className="w-4 h-4 text-yellow-400" />
-              Navigating to camera...
-            </p>
-          </motion.div>
-        )}
+        {/* Template grid — 2 up on phones, 4 across on tablets. */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+          {templates.map((model, i) => {
+            const isSelected = selectedModel === model.id;
+            const dimmed = selectedModel && !isSelected;
+
+            return (
+              <motion.button
+                key={model.id}
+                type="button"
+                onClick={() => handleSelect(model)}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.06 * i, duration: 0.4 }}
+                whileTap={{ scale: 0.97 }}
+                className={`group relative rounded-2xl overflow-hidden border transition-all duration-300
+                  ${
+                    isSelected
+                      ? "border-white/70 ring-4 ring-white/40"
+                      : "border-white/10"
+                  }
+                  ${dimmed ? "opacity-40" : ""}`}
+              >
+                {/* 2:3 — the print ratio. The card shows the same framing the
+                    printed photo will have, so nothing surprises the user. */}
+                <div className="relative aspect-[2/3] bg-black/40">
+                  <img
+                    src={model.image}
+                    alt={model.name}
+                    loading={i < 2 ? "eager" : "lazy"}
+                    decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+
+                  {isSelected && (
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-lg"
+                    >
+                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                    </motion.div>
+                  )}
+
+                  <div className="absolute inset-x-0 bottom-0 p-3 text-left">
+                    <p className="text-white font-semibold text-sm sm:text-base leading-tight">
+                      {model.name}
+                    </p>
+                    <p className="text-gray-400 text-[11px] sm:text-xs mt-0.5">
+                      #{model.id}
+                    </p>
+                  </div>
+                </div>
+              </motion.button>
+            );
+          })}
+        </div>
       </div>
-    </div>
+    </PageShell>
   );
 }
