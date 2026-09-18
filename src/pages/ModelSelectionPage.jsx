@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, CheckCircle2, Sparkles } from "lucide-react";
+import { ArrowLeft, Check } from "lucide-react";
 import { getModelsByGender } from "../assets/data/models";
 import PageShell from "../components/PageShell";
+import PillButton from "../components/PillButton";
 
 export default function ModelSelectionPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [selectedModel, setSelectedModel] = useState(null);
+  const [selected, setSelected] = useState(null);
 
   const gender = location.state?.gender;
 
@@ -21,77 +22,52 @@ export default function ModelSelectionPage() {
 
   const templates = getModelsByGender(gender);
 
-  const handleSelect = (model) => {
-    if (selectedModel) return;
-    setSelectedModel(model.id);
-    setTimeout(
-      () => navigate("/camera", { state: { modelId: model.id, gender } }),
-      450
-    );
+  const goNext = () => {
+    if (!selected) return;
+    navigate("/camera", { state: { modelId: selected, gender } });
   };
 
   return (
-    <PageShell className="px-4 sm:px-6 pt-20 sm:pt-28 pb-10">
-      <div className="relative z-10 max-w-5xl mx-auto">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="mb-4 sm:mb-8"
-        >
+    <PageShell doodles={false} className="flex flex-col px-5 pt-24 min-[380px]:pt-28 sm:pt-36 pb-5 sm:pb-6">
+      <div className="relative z-10 w-full max-w-md sm:max-w-2xl mx-auto flex-1 flex flex-col">
+        <div className="flex items-center gap-3 mb-4">
           <button
             type="button"
             onClick={() => navigate("/")}
-            className="inline-flex items-center gap-2 px-3 py-2 -ml-1 rounded-xl bg-white/5 border border-white/10 active:bg-white/15 transition"
+            aria-label="Back"
+            className="shrink-0 w-10 h-10 rounded-full bg-white border-2 border-black/10 flex items-center justify-center active:bg-black/5 transition"
           >
-            <ArrowLeft className="w-4 h-4 text-gray-300" />
-            <span className="text-sm font-medium text-gray-300">Back</span>
+            <ArrowLeft className="w-5 h-5 text-brand-ink" />
           </button>
+          <p className="text-brand-ink/60 font-semibold text-sm sm:text-base">
+            Pick your look
+          </p>
+        </div>
 
-          <div className="text-center mt-4 space-y-2">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 backdrop-blur-md">
-              <span className="text-xs sm:text-sm font-semibold text-white capitalize">
-                {gender} templates
-              </span>
-              <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
-            </div>
-
-            <h1 className="text-xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight text-balance">
-              Choose Your Look
-            </h1>
-            <p className="text-gray-400 text-sm sm:text-base">
-              Tap a template to continue
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Template grid — 2 up on phones, 4 across on tablets. */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+        {/* 2 up on phones, 4 across on tablets. */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
           {templates.map((model, i) => {
-            const isSelected = selectedModel === model.id;
-            const dimmed = selectedModel && !isSelected;
-
+            const isSelected = selected === model.id;
             return (
               <motion.button
                 key={model.id}
                 type="button"
-                onClick={() => handleSelect(model)}
-                initial={{ opacity: 0, y: 24 }}
+                onClick={() => setSelected(model.id)}
+                aria-pressed={isSelected}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.06 * i, duration: 0.4 }}
+                transition={{ delay: 0.05 * i, duration: 0.35 }}
                 whileTap={{ scale: 0.97 }}
-                className={`group relative rounded-2xl overflow-hidden border transition-all duration-300
+                className={`relative rounded-2xl overflow-hidden bg-white transition-all duration-200
                   ${
                     isSelected
-                      ? "border-white/70 ring-4 ring-white/40"
-                      : "border-white/10"
-                  }
-                  ${dimmed ? "opacity-40" : ""}`}
+                      ? "ring-4 ring-brand shadow-lg shadow-brand/20"
+                      : "ring-1 ring-black/10"
+                  }`}
               >
-                {/* 2:3 — the print ratio. The card shows the same framing the
-                    printed photo will have, so nothing surprises the user. */}
-                <div className="relative aspect-[2/3] bg-black/40">
+                {/* 2:3 — the print ratio, so the card shows the framing the
+                    printed photo will have. */}
+                <div className="relative aspect-[2/3] bg-black/5">
                   <img
                     src={model.image}
                     alt={model.name}
@@ -100,31 +76,31 @@ export default function ModelSelectionPage() {
                     className="absolute inset-0 w-full h-full object-cover"
                   />
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-
                   {isSelected && (
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
-                      className="absolute top-2 right-2 bg-white rounded-full p-1 shadow-lg"
+                      className="absolute top-2 right-2 w-7 h-7 rounded-full bg-brand flex items-center justify-center shadow"
                     >
-                      <CheckCircle2 className="w-5 h-5 text-green-600" />
+                      <Check className="w-4 h-4 text-white" strokeWidth={3} />
                     </motion.div>
                   )}
-
-                  <div className="absolute inset-x-0 bottom-0 p-3 text-left">
-                    <p className="text-white font-semibold text-sm sm:text-base leading-tight">
-                      {model.name}
-                    </p>
-                    <p className="text-gray-400 text-[11px] sm:text-xs mt-0.5">
-                      #{model.id}
-                    </p>
-                  </div>
                 </div>
               </motion.button>
             );
           })}
         </div>
+      </div>
+
+      <div className="relative z-10 w-full max-w-md sm:max-w-lg mx-auto pt-6">
+        <PillButton
+          variant="solid"
+          onClick={goNext}
+          disabled={!selected}
+          className="h-14 sm:h-16"
+        >
+          Next
+        </PillButton>
       </div>
     </PageShell>
   );

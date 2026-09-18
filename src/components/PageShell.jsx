@@ -1,38 +1,46 @@
-import BrandLogos from "./BrandLogos";
+import BrandHeader from "./BrandHeader";
+import DoodleField from "./DoodleField";
 
 /**
- * The frame every page shares: background image, dark overlay, faint grid,
- * and the brand logo bar.
+ * The frame every page shares: light brand background, decorative doodles and
+ * the logo lockup.
  *
  * `min-h-dvh` rather than `min-h-screen`: on mobile browsers `100vh` counts the
  * area behind the collapsing URL bar, so a full-height screen ends up taller
- * than the viewport and the bottom of the page sits under the chrome. `dvh`
- * tracks the visible area instead.
+ * than the viewport and the bottom sits under the chrome. `dvh` tracks the
+ * visible area instead.
  *
- * The background is a CSS class (see index.css) rather than an inline
- * `style={{ backgroundImage }}` so the browser decodes it once instead of once
- * per page.
+ * Safe-area insets are applied as *margins* on an inner wrapper rather than as
+ * inline padding on this element: inline padding would silently beat the
+ * `px-*`/`pb-*` utilities a page passes in `className`, leaving content flush
+ * against the screen edge. The background still paints edge to edge behind the
+ * notch and home indicator. The top inset belongs to BrandHeader, which owns
+ * the top of the page.
  */
 export default function PageShell({
   children,
-  overlay = "bg-black/30",
-  grid = "64px",
-  animatedLogos = true,
-  showLogos = true,
+  doodles = true,
+  showHeader = true,
+  animatedHeader = true,
+  pinnedHeader = true,
   className = "",
 }) {
   return (
-    <div className={`min-h-dvh relative app-bg ${className}`}>
-      <div className={`absolute inset-0 ${overlay}`} />
+    <div className="min-h-dvh relative app-bg overflow-hidden flex flex-col">
+      {doodles && <DoodleField />}
+
+      {showHeader && pinnedHeader && <BrandHeader animated={animatedHeader} />}
 
       <div
-        className="absolute inset-0 app-grid"
-        style={{ backgroundSize: `${grid} ${grid}` }}
-      />
-
-      {showLogos && <BrandLogos animated={animatedLogos} />}
-
-      {children}
+        style={{
+          marginLeft: "env(safe-area-inset-left, 0px)",
+          marginRight: "env(safe-area-inset-right, 0px)",
+          marginBottom: "env(safe-area-inset-bottom, 0px)",
+        }}
+        className={`relative flex-1 min-h-0 ${className}`}
+      >
+        {children}
+      </div>
     </div>
   );
 }

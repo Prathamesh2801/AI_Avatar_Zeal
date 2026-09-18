@@ -22,3 +22,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Design source files (large .ai/.jpeg originals)
+raw_docs

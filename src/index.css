@@ -1,37 +1,57 @@
 @import "tailwindcss";
 
-/* Shared page background. Declared once so the browser decodes the image a
-   single time instead of re-decoding it for every page's inline style. */
-.app-bg {
-  background-image: url("./assets/img/ui/background.jpg");
-  background-size: cover;
-  background-position: center;
+/* HDFC ERGO Insurance Quiz Junior 2026.
+   Palette taken from the vector source (raw_docs/9x16 AI Photo sharing.ai). */
+@theme {
+  --color-brand: #e21f26;
+  --color-brand-dark: #b5161c;
+  --color-brand-ink: #2d2d2d;
+  --color-brand-bg: #fdfdfd;
 }
 
-.app-grid {
-  background-image: linear-gradient(
-      rgba(255, 255, 255, 0.02) 1px,
-      transparent 1px
-    ),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+:root {
+  color-scheme: light;
 }
 
 html {
-  background-color: #0a0a0f;
-  /* Stop iOS inflating text in landscape. */
+  background-color: #fdfdfd;
   -webkit-text-size-adjust: 100%;
 }
 
 body {
-  /* No rubber-band scroll past the page on touch devices. */
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   -webkit-user-select: none;
+  color: #2d2d2d;
+}
+
+/* Page background: near-white with the soft grey swooshes from the artwork.
+   Declared once as a class so the browser paints it identically on every page
+   instead of re-resolving a per-page inline style. */
+.app-bg {
+  background-color: #fdfdfd;
+  background-image:
+    radial-gradient(
+      120% 60% at 85% -8%,
+      rgba(0, 0, 0, 0.055) 0%,
+      rgba(0, 0, 0, 0) 60%
+    ),
+    radial-gradient(
+      110% 55% at -15% 38%,
+      rgba(0, 0, 0, 0.045) 0%,
+      rgba(0, 0, 0, 0) 58%
+    ),
+    radial-gradient(
+      130% 60% at 110% 105%,
+      rgba(0, 0, 0, 0.05) 0%,
+      rgba(0, 0, 0, 0) 62%
+    );
+  background-repeat: no-repeat;
 }
 
 /* `touch-action: manipulation` removes the ~300ms click delay and the
-   double-tap-to-zoom gesture on buttons, while leaving pinch-zoom intact. */
+   double-tap-to-zoom gesture on controls, while leaving pinch-zoom intact. */
 button,
 [role="button"],
 a {

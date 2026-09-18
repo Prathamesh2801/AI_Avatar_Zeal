@@ -1,7 +1,8 @@
-# AI Avatar
+# AI Avatar — HDFC ERGO Insurance Quiz Junior 2026
 
-A mobile/tablet web app for the Vedanta / Cairn event. A visitor picks a gender,
-picks a template, takes a selfie, and gets an AI face-swapped avatar back.
+A mobile/tablet web app for the HDFC ERGO Insurance Quiz Junior 2026. A visitor
+picks a gender, picks a template, takes a selfie, and gets an AI face-swapped
+avatar back.
 
 **Targets phones and tablets only.** There is no desktop or TV/kiosk mode — an
 earlier SSE-driven TV screen, the details form, and the certificate backend were
@@ -18,9 +19,9 @@ npm run lint
 ## Flow
 
 ```
-StartupPage   /          pick Male or Female
+StartupPage   /          pick Male or Female, then NEXT
    │ state:{gender}
-ModelSelectionPage /model   4 templates for that gender
+ModelSelectionPage /model   4 templates for that gender, then NEXT
    │ state:{modelId, gender}
 CameraPage    /camera    native camera → POST /api.php → wait for result
    │ state:{resultImage, modelId, gender, data}
@@ -35,9 +36,44 @@ rather than rendering broken. `*` also redirects to `/`.
 Routing uses `createHashRouter` so the build can be served from any subdirectory
 without server rewrite rules.
 
+## Theme
+
+The UI follows `raw_docs/9x16 AI Photo sharing.ai` (git-ignored; a 9:16
+Illustrator file that opens as PDF). Brand values were taken from its vector
+paths, not sampled from a screenshot:
+
+| token | value | use |
+|---|---|---|
+| `--color-brand` | `#E21F26` | pills, accents |
+| `--color-brand-dark` | `#B5161C` | pressed state |
+| `--color-brand-ink` | `#2D2D2D` | body text |
+| `--color-brand-bg` | `#FDFDFD` | page background |
+
+It is a **light** theme — near-white background with soft grey swooshes
+(`.app-bg` in `index.css`), red pill buttons, outline doodle icons in the
+margins. The earlier dark Vedanta/Cairn theme and its assets are gone.
+
+Assets were extracted from the .ai with PyMuPDF (`pymupdf`), which is the only
+PDF tooling available here — no Illustrator, Inkscape or Ghostscript. The logo
+renders from vector at 4x and the doodles at 8x, so they are sharp; re-export
+the same way if the artwork changes. Icons as inline SVG were tried and
+rejected: clipping the page to one icon keeps every other path, so each file
+came out ~186 KB versus ~10 KB as PNG.
+
+**Landing screen proportions** come from the artwork and are held with `dvh`
+spacers, not guesswork. Measured against the source (% of page height):
+logo 15.7–22.9% at ~62% width, MALE 35.1%, FEMALE 47.4%, NEXT 77.2–82.1%. If
+you change that page, re-check those numbers — it is what stops the screen
+feeling empty.
+
+Components: `BrandHeader` (logo lockup; `pinned={false}` puts it in normal flow
+for the landing screen, `pinned` absolute for the deeper screens),
+`DoodleField` (decorative margin icons, `aria-hidden`), `PillButton`
+(`solid` / `ghost` / `muted`).
+
 ## Model IDs — the backend contract
 
-Template ids are **sent to the face-swap API as-is** (`model_id`). They are
+Template ids are **sent to the face-swap API as-is** (`id`). They are
 blocked by gender:
 
 | id | male (100s) | female (200s) | pose |
@@ -118,11 +154,14 @@ those imports.
 
 ## Layout components
 
-- **`PageShell`** — background, overlay, grid, and logo bar. Every page uses it;
-  don't re-implement the chrome. Props: `overlay`, `grid`, `animatedLogos`,
-  `showLogos`, `className`.
-- **`BrandLogos`** — Vedanta + Cairn bar. Usable standalone.
-- **`GenderIcon`** — lazy-loaded Lottie wrapper.
+- **`PageShell`** — background, doodles and the logo lockup. Every page uses it;
+  don't re-implement the chrome. Props: `doodles`, `showHeader`,
+  `animatedHeader`, `pinnedHeader`, `className`.
+
+  Safe-area insets are applied as **margins on an inner wrapper**, not as inline
+  padding on the root. Inline padding silently beat the `px-*`/`pb-*` utilities
+  a page passes via `className`, leaving content flush against the screen edge —
+  that bug is why pills bled off both sides.
 
 ## Mobile notes
 
@@ -135,6 +174,11 @@ those imports.
 - The camera input uses `capture="user"` (front camera) — it's a selfie.
 - Pinch-zoom is deliberately left enabled; `touch-action: manipulation` on
   buttons kills the 300ms tap delay and double-tap zoom without blocking it.
+- **iOS notch:** `viewport-fit=cover` in `index.html` lets the page paint behind
+  the notch and home indicator; the safe-area insets in `PageShell` and
+  `BrandHeader` keep content clear of them. `BrandHeader` adds the top inset
+  inside `calc()` because a `py-*` utility would override a separate `pt-*` —
+  that exact bug once left the logo flush against the browser chrome.
 - Tap feedback uses `active:` rather than `hover:` — hover doesn't exist on
   touch, and sticky hover states look broken after a tap.
 - Grids are 2-up on phones (`grid-cols-2`), 4-across from `lg`.
@@ -151,21 +195,19 @@ Runs on visitors' own phones over event wifi, so weight matters:
   tree is ~1.4 MB. An earlier set of 2048px PNGs totalled ~10 MB and was the
   main source of lag — resize before committing, don't ship source art.
 - **Routes are code-split**; only `StartupPage` is eager.
-- **Lottie is lazy-loaded** via `GenderIcon`. `lottie-web` is ~350 KB gzipped
-  and only feeds two icons — never import `@lottiefiles/react-lottie-player` at
-  module scope.
 - **The router is created at module scope**, not inside the component.
 
-Initial JS chunk is ~518 KB (146 KB gzip). If it jumps, check what got pulled
-into the eager path.
+Initial JS chunk is ~415 KB (134 KB gzip) — Lottie is gone with the old theme,
+so don't reintroduce `@lottiefiles/react-lottie-player`. If the chunk jumps,
+check what got pulled into the eager path.
 
 ## Conventions
 
 - Tailwind v4 via `@tailwindcss/vite` — config lives in `index.css`, there is no
   `tailwind.config.js`.
 - framer-motion for animation, `lucide-react` for icons.
-- Accent colour is brand red (`red-600`/`red-500`), matching the template
-  artwork. Earlier purple/pink accents clashed with it.
+- Use the brand tokens (`bg-brand`, `text-brand-ink`, …) rather than raw
+  `red-*` shades, so a palette change is one edit in `index.css`.
 - Blob URLs from the camera must be `revokeObjectURL`'d (see `CameraPage`), and
   the file input's `value` reset on retake — otherwise re-picking the *same*
   photo won't fire `onChange`.
