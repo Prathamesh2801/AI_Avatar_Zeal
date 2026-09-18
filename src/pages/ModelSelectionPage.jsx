@@ -28,8 +28,8 @@ export default function ModelSelectionPage() {
   };
 
   return (
-    <PageShell doodles={false} className="flex flex-col px-5 pt-24 min-[380px]:pt-28 sm:pt-36 pb-5 sm:pb-6">
-      <div className="relative z-10 w-full max-w-md sm:max-w-2xl mx-auto flex-1 flex flex-col">
+    <PageShell doodles={false} className="flex flex-col px-5 pt-24 min-[380px]:pt-28 sm:pt-32 lg:pt-36 pb-5 sm:pb-6">
+      <div className="relative z-10 w-full max-w-md sm:max-w-xl lg:max-w-5xl mx-auto flex-1 flex flex-col">
         <div className="flex items-center gap-3 mb-4">
           <button
             type="button"
@@ -44,8 +44,12 @@ export default function ModelSelectionPage() {
           </p>
         </div>
 
-        {/* 2 up on phones, 4 across on tablets. */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        {/* 2 up everywhere except wide landscape tablets. A portrait tablet is
+            tall, not wide: forcing all four into one row made each card ~160px
+            while ~450px of height went unused, so 2x2 fills the screen far
+            better. `items-center` keeps the block centred in the leftover
+            space instead of hugging the header. */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 flex-1 min-h-0 content-center justify-items-center *:w-full *:max-w-[min(15rem,26dvh)] lg:*:max-w-[min(15rem,38dvh)]">
           {templates.map((model, i) => {
             const isSelected = selected === model.id;
             return (

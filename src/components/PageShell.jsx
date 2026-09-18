@@ -25,8 +25,12 @@ export default function PageShell({
   pinnedHeader = true,
   className = "",
 }) {
+  // `h-dvh` (not just `min-h-dvh`) so the inner `flex-1` region is bounded by
+  // the viewport. With only a min-height the children can grow past it and the
+  // page scrolls — which is what pushed the template grid off the bottom of a
+  // portrait iPad.
   return (
-    <div className="min-h-dvh relative app-bg overflow-hidden flex flex-col">
+    <div className="h-dvh relative app-bg overflow-hidden flex flex-col">
       {doodles && <DoodleField />}
 
       {showHeader && pinnedHeader && <BrandHeader animated={animatedHeader} />}
@@ -37,7 +41,7 @@ export default function PageShell({
           marginRight: "env(safe-area-inset-right, 0px)",
           marginBottom: "env(safe-area-inset-bottom, 0px)",
         }}
-        className={`relative flex-1 min-h-0 ${className}`}
+        className={`relative flex-1 min-h-0 overflow-y-auto ${className}`}
       >
         {children}
       </div>

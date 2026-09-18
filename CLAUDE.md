@@ -181,7 +181,13 @@ those imports.
   that exact bug once left the logo flush against the browser chrome.
 - Tap feedback uses `active:` rather than `hover:` — hover doesn't exist on
   touch, and sticky hover states look broken after a tap.
-- Grids are 2-up on phones (`grid-cols-2`), 4-across from `lg`.
+- Template grid is **2-up on phones and portrait tablets**, 4-across only from
+  `lg` (landscape tablets). Four in a row on a portrait iPad left each card
+  ~160px with ~450px of height unused — a portrait tablet is tall, not wide.
+- `PageShell` is `h-dvh`, not just `min-h-dvh`. With only a min-height the
+  `flex-1` content region can grow past the viewport and the page scrolls; that
+  is what pushed the template grid off the bottom of an iPad Mini. The inner
+  wrapper is `overflow-y-auto` so genuinely tall content still scrolls.
 
 ## Performance — read before adding assets
 

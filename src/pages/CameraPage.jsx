@@ -86,7 +86,7 @@ export default function CameraPage() {
   };
 
   return (
-    <PageShell doodles={false} className="flex flex-col px-5 pt-24 min-[380px]:pt-28 sm:pt-36 pb-5 sm:pb-6">
+    <PageShell doodles={false} className="flex flex-col px-5 pt-24 min-[380px]:pt-28 sm:pt-32 lg:pt-36 pb-5 sm:pb-6">
       <div className="relative z-10 w-full max-w-md mx-auto flex-1 flex flex-col">
         <div className="flex items-center gap-3 mb-4">
           <button
