@@ -45,16 +45,50 @@ export const faceSwap = async ({ source, id }) => {
       error: ok ? null : data?.message || data?.error || null,
     };
   } catch (error) {
-    // Network / CORS / timeout
+    // A CORS block and a genuine network failure are indistinguishable to JS —
+    // both surface as a bare "Network Error" with no status. Reaching the host
+    // at all tells them apart, and saying which it is saves hunting the wrong
+    // problem: a blocked response means the server ran the job fine and the
+    // browser refused the reply (see SERVER_CORS.md).
+    const timedOut = error.code === "ECONNABORTED";
+    const reachable = await hostReachable();
+
     return {
       ok: false,
       status: 0,
       data: null,
       resultImage: null,
-      error: error.message || "Network Error",
+      blocked: !timedOut && reachable,
+      error: timedOut
+        ? "The server took too long to respond."
+        : reachable
+          ? "The server replied but the browser blocked it (CORS). " +
+            "Check the response headers."
+          : "Could not reach the server. Check the connection.",
     };
   }
 };
+
+/**
+ * Is the host up at all?
+ *
+ * `no-cors` returns an opaque response we can't read, but it only *resolves*
+ * if something answered — which is exactly the signal needed to tell a CORS
+ * block (host up, reply refused) from the host being unreachable.
+ */
+async function hostReachable() {
+  try {
+    await fetch(`${FACE_SWAP_BASE_URL}/api.php`, {
+      method: "GET",
+      mode: "no-cors",
+      cache: "no-store",
+      signal: AbortSignal.timeout(4000),
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 // Relative paths from the API need the host prefixed to load in an <img>.
 function resolveUrl(value) {

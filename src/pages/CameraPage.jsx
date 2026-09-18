@@ -66,11 +66,11 @@ export default function CameraPage() {
     setLoading(false);
 
     if (!response.ok) {
+      // faceswap.js already words the connection failures (unreachable vs
+      // CORS-blocked vs timeout), so prefer its message.
       setError(
-        response.status === 0
-          ? "Could not reach the server. Check the connection and try again."
-          : response.error ||
-              `Generation failed (error ${response.status}). Please try again.`
+        response.error ||
+          `Generation failed (error ${response.status}). Please try again.`
       );
       return;
     }
