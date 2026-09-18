@@ -43,16 +43,25 @@ function saveBlob(blob, name) {
 export async function saveImage(imageUrl) {
   if (!imageUrl) throw new Error("No image to save");
 
-  // Fetching gives us a same-origin blob, which is what makes both the
-  // download attribute and file sharing work on a cross-origin image.
+  // Fetching gives us a blob we own, which is what makes both the download
+  // attribute and file sharing work on a cross-origin image.
+  //
+  // This REQUIRES the image server to send `Access-Control-Allow-Origin`.
+  // Without it the browser blocks the read, and the best we can do is open the
+  // image so the user can save it by hand. If downloads are opening a tab
+  // instead of saving, check that header first — see CLAUDE.md.
   let blob;
   try {
     const res = await fetch(imageUrl, { mode: "cors" });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     blob = await res.blob();
-  } catch {
-    // CORS blocked or offline — opening the image still lets the user
-    // long-press to save it.
+  } catch (err) {
+    console.warn(
+      "[saveImage] Could not read the image bytes, falling back to opening " +
+        "it in a tab. Usually a missing Access-Control-Allow-Origin header " +
+        "on the image server.",
+      err
+    );
     window.open(imageUrl, "_blank", "noopener");
     return "opened";
   }

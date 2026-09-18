@@ -136,6 +136,39 @@ Note `ok` is not just `status === 200` — the backend returns HTTP 200 with
 `success: false` on failures like "No face detected", and that message is shown
 to the user. `status: 0` means network failure/timeout (120s cap).
 
+## The image server must send CORS headers
+
+Downloading works by `fetch`ing the result image into a blob the app owns —
+that is what makes `<a download>` save a file and what lets iOS share it. The
+browser only allows that read if the **image** response carries:
+
+```
+Access-Control-Allow-Origin: *
+```
+
+Without it the fetch is blocked, `saveImage()` falls back to opening the image
+in a tab, and the user has to long-press to save. Symptom: "Download opens the
+picture instead of saving it". It is not a dev-only artefact — verified against
+two real origins, one with the header and one without.
+
+On the Apache box, a `.htaccess` in the served folder does it (needs
+`mod_headers`):
+
+```apache
+<IfModule mod_headers.c>
+  Header set Access-Control-Allow-Origin "*"
+</IfModule>
+```
+
+Check it with:
+
+```bash
+curl -sI http://<host>/<path>/Final/<file>.png | grep -i access-control
+```
+
+The API response (`api.php`) already sends the header; it is the **static image
+files** under `Final/` that need it too.
+
 ## Hiding the download button
 
 Download is on by default. To hide it (e.g. a shared display where visitors

@@ -12,7 +12,7 @@ import {
 import PageShell from "../components/PageShell";
 import PillButton from "../components/PillButton";
 import { useAppFlags } from "../hooks/useAppFlags";
-import { saveImage, isIOS } from "../utils/saveImage";
+import { saveImage } from "../utils/saveImage";
 
 export default function ResultPage() {
   const location = useLocation();
@@ -22,6 +22,8 @@ export default function ResultPage() {
   const { resultImage, modelId, gender } = location.state ?? {};
   const [imageFailed, setImageFailed] = useState(false);
   const [saveState, setSaveState] = useState("idle"); // idle|saving|done|error
+  // How the save actually resolved: "saved" | "shared" | "opened".
+  const [saveHow, setSaveHow] = useState(null);
 
   useEffect(() => {
     if (!location.state) navigate("/", { replace: true });
@@ -38,10 +40,11 @@ export default function ResultPage() {
     setSaveState("saving");
     try {
       const how = await saveImage(resultImage);
+      setSaveHow(how);
       setSaveState("done");
-      // "opened" means it went to a new tab and the user still has to act, so
-      // leave the hint up longer than a silent save.
-      setTimeout(() => setSaveState("idle"), how === "saved" ? 2500 : 5000);
+      // "opened" means it only went to a new tab and the user still has to act,
+      // so leave the hint up longer than a silent save.
+      setTimeout(() => setSaveState("idle"), how === "saved" ? 2500 : 6000);
     } catch {
       setSaveState("error");
       setTimeout(() => setSaveState("idle"), 4000);
@@ -50,10 +53,19 @@ export default function ResultPage() {
 
   const showImage = resultImage && !imageFailed;
 
+  // Never claim "Saved" when the file only opened in a tab — the user would
+  // walk away thinking they had it.
+  const doneLabel =
+    saveHow === "opened"
+      ? "Opened in new tab"
+      : saveHow === "shared"
+        ? "Shared"
+        : "Saved";
+
   const saveLabel = {
     idle: "Download",
     saving: "Saving…",
-    done: isIOS() ? "Save to Photos" : "Saved",
+    done: doneLabel,
     error: "Try again",
   }[saveState];
 
@@ -122,6 +134,15 @@ export default function ResultPage() {
             )}
             {saveLabel}
           </PillButton>
+        )}
+
+        {/* The tab fallback needs an instruction — otherwise the image just
+            appears and nothing obviously happened. */}
+        {saveState === "done" && saveHow === "opened" && (
+          <p className="text-center text-brand-ink/60 text-xs sm:text-sm px-2">
+            Press and hold the image, then choose{" "}
+            <span className="font-semibold">Save image</span>.
+          </p>
         )}
 
         <div className="flex gap-3">
